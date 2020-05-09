@@ -1,13 +1,72 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Press Start 2P'), url('PressStart2P-Regular.woff') format('woff');
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Press Start 2P Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+html {
+  overflow-x: hidden;
+}
+
+header {
+  height: 3em;
+  background-color: lightblue;
+  padding-bottom: 1rem;
+}
+
+header h1 {
+  margin: 0;
+  text-align: center;
+  font-family: 'Press Start 2P';
+  font-size: 2.2rem;
+}
+
+#content-window {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.drawing-panel {
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  border-style: solid;
+  border-width: 4px;
+  border-image-slice: 2;
+  border-image-width: 2;
+  border-image-repeat: stretch;
+  border-image-source: url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="UTF-8" ?><svg version="1.1" width="5" height="5" xmlns="http://www.w3.org/2000/svg"><path d="M2 1 h1 v1 h-1 z M1 2 h1 v1 h-1 z M3 2 h1 v1 h-1 z M2 3 h1 v1 h-1 z" fill="rgb(33,37,41)" /></svg>');
+}
+
+.button-flex {
+  max-width: 19rem;
+  margin: 0 auto;
+}
+
+.colour-row button {
+  border-style: solid;
+  border-width: 4px;
+  width: 30px;
+  height: 60px;
+  margin-right: 1rem;
+}
+
+.colour-row button.selected {
+  border-color: red;
+}
+
+.button-flex {
+  display: flex;
 }
