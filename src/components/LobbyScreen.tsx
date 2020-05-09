@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react'
 
 interface LobbyProps {
   isPartyLeader: boolean
+  joinCode: string
+  players: Player[]
 }
 
-function LobbyScreen({ isPartyLeader }: LobbyProps) {
+interface Player {
+  playerID: string
+  playerName: string
+}
+
+function LobbyScreen({ isPartyLeader, joinCode, players }: LobbyProps) {
   const [name, setName] = useState('')
 
   useEffect(() => {
@@ -25,14 +32,11 @@ function LobbyScreen({ isPartyLeader }: LobbyProps) {
 
   return (
     <div id="content-window">
-      <p style={{ textAlign: 'center' }}>Room code: HGRW</p>
+      <p style={{ textAlign: 'center' }}>Room code: {joinCode}</p>
       <p style={{ textAlign: 'center' }}>Players:</p>
       <div className="lists">
         <ul className="nes-list is-disc">
-          <li>Greg</li>
-          <li>Joan</li>
-          <li>Lisa</li>
-          <li>Keith</li>
+          {players.map(player => (<li key={player.playerID}>{player.playerName}</li>))}
         </ul>
       </div>
       <div className="nes-field" style={{ maxWidth: '320px', margin: '0 auto' }}>
