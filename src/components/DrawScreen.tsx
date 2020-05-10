@@ -75,7 +75,7 @@ function DrawScreen({ word }: DrawScreenProps) {
         ref={drawing}
         lazyRadius={1}
         hideGrid={true}
-        brushRadius={6}
+        brushRadius={4}
         canvasWidth={320}
         canvasHeight={400}
         className="drawing-panel"

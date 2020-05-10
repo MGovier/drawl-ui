@@ -16,6 +16,7 @@ export interface GameState {
   drawing: string
   isLoading: boolean
   error: string | null
+  streamConnected: boolean
 }
 
 export interface GameUpdate {
@@ -42,7 +43,8 @@ export const defaultGameState: GameState = {
   drawing: '',
   word: '',
   isLoading: false,
-  error: null
+  error: null,
+  streamConnected: false
 }
 
 export interface Player {
@@ -86,7 +88,6 @@ const gameState = createSlice({
       state.error = null
     },
     connectStreamSuccess(state) {
-      state.isLoading = false
       state.error = null
     },
     newGameFailure: loadingFailed,
@@ -94,6 +95,7 @@ const gameState = createSlice({
   },
   extraReducers: {
     'GAME_STREAM::MESSAGE': (state, action) => {
+      state.streamConnected = true
       try {
         const msg = JSON.parse(action.payload.message)
         const payload = atob(msg.data)
@@ -111,7 +113,7 @@ const gameState = createSlice({
     },
     'GAME_STREAM::ERROR': (state, action) => {
       console.error(action)
-      state.isLoading = false
+      state.streamConnected = false
       state.error = `Could not establish WebSocket connection - we'll keep trying!`
     },
   },

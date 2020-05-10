@@ -5,23 +5,30 @@ import { sendStreamMessage } from '../api/gameStateReducer'
 
 function LobbyScreen() {
   const [name, setName] = useState('')
-  // need this later...
   const dispatch = useDispatch()
-  const { players, joinCode, leader } = useSelector((state: RootState) => state.gameState)
+  const { players, joinCode, leader, streamConnected } = useSelector((state: RootState) => state.gameState)
 
   useEffect(() => {
     const localName = localStorage.getItem('playerName')
     if (localName !== null && localName !== '') {
       setName(localName)
+      if (streamConnected) {
+        dispatch(sendStreamMessage({
+          type: 'name',
+          data: localName
+        }))
+      }
     }
-  }, [])
+  }, [dispatch, streamConnected])
 
-  function sendName(newName = name) {
-    localStorage.setItem('playerName', newName)
-    dispatch(sendStreamMessage({
-      type: 'name',
-      data: newName
-    }))
+  function sendName() {
+    localStorage.setItem('playerName', name)
+    if (name.length > 1 && name.length < 15) {
+      dispatch(sendStreamMessage({
+        type: 'name',
+        data: name
+      }))
+    }
   }
 
   function startGame() {
@@ -30,7 +37,7 @@ function LobbyScreen() {
 
   return (
     <div id="content-window">
-      <p style={{ textAlign: 'center' }}>Room code: {joinCode}</p>
+      <p style={{ textAlign: 'center' }}>Room Code: {joinCode}</p>
       <p style={{ textAlign: 'center' }}>Players:</p>
       <div className="lists">
         <ul className="nes-list is-disc">
