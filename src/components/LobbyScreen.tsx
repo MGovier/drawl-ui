@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../rootReducer'
+import { sendStreamMessage } from '../api/gameStateReducer'
 
-interface LobbyProps {
-  isPartyLeader: boolean
-  joinCode: string
-  players: Player[]
-}
-
-interface Player {
-  playerID: string
-  playerName: string
-}
-
-function LobbyScreen({ isPartyLeader, joinCode, players }: LobbyProps) {
+function LobbyScreen() {
   const [name, setName] = useState('')
+  // need this later...
+  const dispatch = useDispatch()
+  const { players, joinCode, leader } = useSelector((state: RootState) => state.gameState)
 
   useEffect(() => {
     const localName = localStorage.getItem('playerName')
@@ -21,9 +16,12 @@ function LobbyScreen({ isPartyLeader, joinCode, players }: LobbyProps) {
     }
   }, [])
 
-  function sendName() {
-    localStorage.setItem('playerName', name)
-    console.log('sending name:' + name)
+  function sendName(newName = name) {
+    localStorage.setItem('playerName', newName)
+    dispatch(sendStreamMessage({
+      type: 'name',
+      data: newName
+    }))
   }
 
   function startGame() {
@@ -47,7 +45,11 @@ function LobbyScreen({ isPartyLeader, joinCode, players }: LobbyProps) {
           className="nes-input"
           value={name}
           onChange={(evt) => {
-            setName(evt.target.value)
+            let newName = evt.target.value
+            if (newName.length > 15) {
+              newName = newName.substring(0,15)
+            }
+            setName(newName)
           }}
         />
       </div>
@@ -61,7 +63,7 @@ function LobbyScreen({ isPartyLeader, joinCode, players }: LobbyProps) {
       >
         Set Name
       </button>
-      { isPartyLeader && 
+      { leader && 
             <button
             type="button"
             className="nes-btn is-primary"

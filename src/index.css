@@ -13,6 +13,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  padding-bottom: 1rem;
 }
 
 html {
