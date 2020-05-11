@@ -32,7 +32,9 @@ function LobbyScreen() {
   }
 
   function startGame() {
-    console.log('lets go')
+    dispatch(sendStreamMessage({
+      type: 'start'
+    }))
   }
 
   return (

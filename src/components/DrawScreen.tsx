@@ -20,7 +20,7 @@ function DrawScreen({ word }: DrawScreenProps) {
 
   return (
     <div id="content-window">
-      <p style={{ textAlign: 'center' }}>It's your turn to draw a:</p>
+      <p style={{ textAlign: 'center' }}>It's your turn to draw:</p>
       <p style={{ textAlign: 'center' }}>{word}</p>
       <div className="button-flex">
         <span className="colour-row">

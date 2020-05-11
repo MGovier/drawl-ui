@@ -25,8 +25,8 @@ export interface GameUpdate {
 }
 
 export interface StreamMessage {
-  type: 'name'
-  data: string
+  type: 'name' | 'start'
+  data?: string
 }
 
 export const defaultGameState: GameState = {
@@ -103,6 +103,10 @@ const gameState = createSlice({
         switch (msg.type) {
           case 'players':
             state.players = JSON.parse(payload)
+            break
+          case 'word':
+            state.stage = 'draw'
+            state.word = payload
             break
           default:
             return state

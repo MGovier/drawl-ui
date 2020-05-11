@@ -35,7 +35,7 @@ function StartScreen() {
               value={joinCode}
               disabled={isLoading}
               onChange={(evt) => {
-                setJoinCode(evt.target.value)
+                setJoinCode(evt.target.value.toUpperCase())
               }}
             />
           </div>
