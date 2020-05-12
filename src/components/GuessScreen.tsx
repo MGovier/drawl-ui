@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import CanvasDraw from 'react-canvas-draw'
+import { useDispatch } from 'react-redux'
+import { sendStreamMessage } from '../api/gameStateReducer'
+
 
 interface GuessScreenProps {
   drawData: string
 }
 
 function GuessScreen({ drawData }: GuessScreenProps) {
+  const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
   const [buttonText, setButtonText] = useState(`Send Guess`)
   const [guess, setGuess] = useState('')
   const [drawing, setDrawing] = useState('')
 
   useEffect(() => {
-    setDrawing(drawing)
-  }, [drawing])
+    setDrawing(drawData)
+  }, [drawData])
 
   function sendGuess() {
     setDisabled(true)
     setButtonText('Sending...')
-    console.log('sending guess:' + guess)
+    if (guess !== '') {
+      dispatch(sendStreamMessage({
+        type: 'guess',
+        data: guess
+      }))
+    }
   }
 
   return (

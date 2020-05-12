@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react'
 import CanvasDraw from 'react-canvas-draw'
+import { useDispatch } from 'react-redux'
+import { sendStreamMessage } from '../api/gameStateReducer'
 
 interface DrawScreenProps {
   word: string
@@ -7,15 +9,21 @@ interface DrawScreenProps {
 
 function DrawScreen({ word }: DrawScreenProps) {
   const drawing = useRef<CanvasDraw>(null)
+  const dispatch = useDispatch()
   const [colour, setColour] = useState('#444')
   const [disabled, setDisabled] = useState(false)
   const [buttonText, setButtonText] = useState(`I'm Done`)
 
-  function saveDrawing() {
+  function sendDrawing() {
     setDisabled(true)
     setButtonText('Sending...')
     const drawingData = drawing.current?.getSaveData()
-    console.log(JSON.stringify(drawingData))
+    if (drawingData !== null) {
+      dispatch(sendStreamMessage({
+        type: 'drawing',
+        data: drawingData
+      }))
+    }
   }
 
   return (
@@ -87,7 +95,7 @@ function DrawScreen({ word }: DrawScreenProps) {
         className="nes-btn is-primary"
         disabled={disabled}
         onClick={() => {
-          saveDrawing()
+          sendDrawing()
         }}
         style={{ margin: '0 auto', display: 'block' }}
       >

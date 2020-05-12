@@ -25,7 +25,7 @@ export interface GameUpdate {
 }
 
 export interface StreamMessage {
-  type: 'name' | 'start'
+  type: 'name' | 'start' | 'drawing' | 'guess'
   data?: string
 }
 
@@ -107,6 +107,10 @@ const gameState = createSlice({
           case 'word':
             state.stage = 'draw'
             state.word = payload
+            break
+          case 'drawing':
+            state.stage = 'guess'
+            state.drawing = payload
             break
           default:
             return state
