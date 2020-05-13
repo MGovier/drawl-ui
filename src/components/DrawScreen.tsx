@@ -81,7 +81,7 @@ function DrawScreen({ word }: DrawScreenProps) {
       </div>
       <CanvasDraw
         ref={drawing}
-        lazyRadius={1}
+        lazyRadius={0}
         hideGrid={true}
         brushRadius={4}
         canvasWidth={320}

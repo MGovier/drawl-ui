@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { GameResp, startGame, joinGame } from './GameAPI'
+import { GameResp, startGame, joinGame, getGameReview, GameReview } from './GameAPI'
 import { connect, disconnect, send } from '@giantmachines/redux-websocket'
 
 import { AppThunk } from '../store'
@@ -17,6 +17,7 @@ export interface GameState {
   isLoading: boolean
   error: string | null
   streamConnected: boolean
+  reviewData: GameReview | null
 }
 
 export interface GameUpdate {
@@ -25,7 +26,7 @@ export interface GameUpdate {
 }
 
 export interface StreamMessage {
-  type: 'name' | 'start' | 'drawing' | 'guess'
+  type: 'name' | 'start' | 'drawing' | 'guess' | 'review'
   data?: string
 }
 
@@ -44,7 +45,8 @@ export const defaultGameState: GameState = {
   word: '',
   isLoading: false,
   error: null,
-  streamConnected: false
+  streamConnected: false,
+  reviewData: null
 }
 
 export interface Player {
@@ -52,21 +54,17 @@ export interface Player {
   playerName: string
 }
 
-function startLoading(state: GameState) {
-  state.isLoading = true
-}
-
-function loadingFailed(state: GameState, action: PayloadAction<string>) {
-  state.isLoading = false
-  state.error = action.payload
-}
-
 const gameState = createSlice({
   name: 'gameState',
   initialState: defaultGameState,
   reducers: {
-    joinGameStart: startLoading,
-    newGameStart: startLoading,
+    startLoading(state: GameState) {
+      state.isLoading = true
+    },
+    loadingFailed(state: GameState, action: PayloadAction<string>) {
+      state.isLoading = false
+      state.error = action.payload
+    },
     joinGameSuccess(state, { payload }: PayloadAction<GameResp>) {
       const { gameID, player, joinCode } = payload
       state.gameID = gameID
@@ -90,27 +88,31 @@ const gameState = createSlice({
     connectStreamSuccess(state) {
       state.error = null
     },
-    newGameFailure: loadingFailed,
-    joinGameFailure: loadingFailed
+    loadReviewDataSuccess(state, { payload }: PayloadAction<GameReview>) {
+      state.reviewData = payload
+      state.isLoading = false
+      state.error = null
+    },
   },
   extraReducers: {
     'GAME_STREAM::MESSAGE': (state, action) => {
       state.streamConnected = true
       try {
         const msg = JSON.parse(action.payload.message)
-        const payload = atob(msg.data)
-        console.log(msg, payload)
         switch (msg.type) {
           case 'players':
-            state.players = JSON.parse(payload)
+            state.players = JSON.parse(atob(msg.data))
             break
           case 'word':
             state.stage = 'draw'
-            state.word = payload
+            state.word = atob(msg.data)
             break
           case 'drawing':
             state.stage = 'guess'
-            state.drawing = payload
+            state.drawing = atob(msg.data)
+            break
+          case 'review':
+            state.stage = 'review'
             break
           default:
             return state
@@ -128,62 +130,69 @@ const gameState = createSlice({
 })
 
 export const {
-  joinGameStart,
+  startLoading,
+  loadingFailed,
   joinGameSuccess,
-  joinGameFailure,
-  newGameStart,
   newGameSuccess,
-  newGameFailure,
-  connectStreamSuccess
+  connectStreamSuccess,
+  loadReviewDataSuccess,
 } = gameState.actions
-
 
 export default gameState.reducer
 
-export const startNewGame = (): AppThunk => async dispatch => {
+export const startNewGame = (): AppThunk => async (dispatch) => {
   try {
-    dispatch(newGameStart())
+    dispatch(startLoading())
     const issues = await startGame()
     dispatch(newGameSuccess(issues))
   } catch (err) {
-    dispatch(newGameFailure(err.toString()))
+    dispatch(loadingFailed(err.toString()))
   }
 }
 
-export const joinAGame = (
-  joinCode: string
-): AppThunk => async dispatch => {
+export const joinAGame = (joinCode: string): AppThunk => async (dispatch) => {
   try {
-    dispatch(joinGameStart())
+    dispatch(startLoading())
     const issue = await joinGame(joinCode)
     dispatch(joinGameSuccess(issue))
   } catch (err) {
-    dispatch(joinGameFailure(err.toString()))
+    dispatch(loadingFailed(err.toString()))
   }
 }
 
-export const subscribeToGameStream = (gameID : string, playerID: string) : AppThunk => async (dispatch) => {
+export const subscribeToGameStream = (gameID: string, playerID: string): AppThunk => async (dispatch) => {
   try {
-    dispatch(joinGameStart())
+    dispatch(startLoading())
     dispatch(connect(`ws://localhost:8080/${gameID}/${playerID}/`, 'GAME_STREAM'))
     dispatch(connectStreamSuccess())
   } catch (err) {
-    dispatch(joinGameFailure(err.toString()))
+    dispatch(loadingFailed(err.toString()))
   }
 }
 
-export const unsubscribeFromGameStream = () : AppThunk => async (dispatch) => {
+export const unsubscribeFromGameStream = (): AppThunk => async (dispatch) => {
   try {
     dispatch(disconnect('GAME_STREAM'))
   } catch (err) {
-    dispatch(joinGameFailure(err.toString()))
+    dispatch(loadingFailed(err.toString()))
   }
 }
 
-export const sendStreamMessage = (message : StreamMessage) : AppThunk => async (dispatch) => {
+export const sendStreamMessage = (message: StreamMessage): AppThunk => async (dispatch) => {
   try {
-    dispatch(send(message, "GAME_STREAM"))
+    dispatch(send(message, 'GAME_STREAM'))
   } catch (err) {
+    console.error(err)
+  }
+}
+
+export const getGameReviewData = (gameID: string): AppThunk => async (dispatch) => {
+  try {
+    dispatch(startLoading())
+    const data = await getGameReview(gameID)
+    dispatch(loadReviewDataSuccess(data))
+  } catch (err) {
+    dispatch(loadingFailed(err.toString()))
     console.error(err)
   }
 }

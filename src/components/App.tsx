@@ -6,6 +6,7 @@ import LobbyScreen from './LobbyScreen'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../rootReducer'
 import { subscribeToGameStream, unsubscribeFromGameStream } from '../api/gameStateReducer'
+import ReviewScreen from './ReviewScreen'
 
 function App() {
   const dispatch = useDispatch()
@@ -29,6 +30,8 @@ function App() {
       return <DrawScreen word={word} />
     case 'guess':
       return <GuessScreen drawData={drawing} />
+    case 'review':
+      return <ReviewScreen />
     default:
       return <p>Ah... this isn't supposed to happen</p>
   }
