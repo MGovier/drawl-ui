@@ -7,10 +7,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../rootReducer'
 import { subscribeToGameStream, unsubscribeFromGameStream } from '../api/gameStateReducer'
 import ReviewScreen from './ReviewScreen'
+import ResultsScreen from './ResultsScreen'
 
 function App() {
   const dispatch = useDispatch()
-  const { stage, gameID, player, word, drawing } = useSelector((state: RootState) => state.gameState)
+  const { stage, gameID, player, word, drawing, error } = useSelector((state: RootState) => state.gameState)
 
   useEffect(() => {
     if (gameID !== '' && player.playerID !== '') {
@@ -20,6 +21,16 @@ function App() {
       }
     }
   }, [dispatch, gameID, player])
+
+  if (error != null) {
+    return ( 
+      <>
+        <h1>Something bad happened...</h1>
+        {error}
+      </>
+    )
+
+  }
 
   switch (stage) {
     case 'start':
@@ -32,6 +43,8 @@ function App() {
       return <GuessScreen drawData={drawing} />
     case 'review':
       return <ReviewScreen />
+    case 'results':
+      return <ResultsScreen />
     default:
       return <p>Ah... this isn't supposed to happen</p>
   }

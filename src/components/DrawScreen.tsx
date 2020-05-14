@@ -15,15 +15,16 @@ function DrawScreen({ word }: DrawScreenProps) {
   const [buttonText, setButtonText] = useState(`I'm Done`)
 
   function sendDrawing() {
-    setDisabled(true)
-    setButtonText('Sending...')
     const drawingData = drawing.current?.getSaveData()
     if (drawingData !== null) {
+      setDisabled(true)
+      setButtonText('Sending...')
       dispatch(sendStreamMessage({
         type: 'drawing',
         data: drawingData
       }))
-    }
+      setButtonText('Waiting...')
+    } 
   }
 
   return (

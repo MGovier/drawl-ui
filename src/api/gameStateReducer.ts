@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { GameResp, startGame, joinGame, getGameReview, GameReview } from './GameAPI'
-import { connect, disconnect, send } from '@giantmachines/redux-websocket'
+import { connect, send } from '@giantmachines/redux-websocket'
 
 import { AppThunk } from '../store'
 
@@ -11,6 +11,7 @@ export interface GameState {
   joinCode: string
   player: Player
   players: Player[]
+  retryCount: number
   leader: boolean
   word: string
   drawing: string
@@ -20,13 +21,8 @@ export interface GameState {
   reviewData: GameReview | null
 }
 
-export interface GameUpdate {
-  type: 'drawing' | 'guess' | 'award' | 'name'
-  data: string
-}
-
 export interface StreamMessage {
-  type: 'name' | 'start' | 'drawing' | 'guess' | 'review'
+  type: 'name' | 'start' | 'drawing' | 'guess' | 'award' | 'done' | 'quit'
   data?: string
 }
 
@@ -38,7 +34,9 @@ export const defaultGameState: GameState = {
   player: {
     playerName: '',
     playerID: '',
+    points: 0
   },
+  retryCount: 0,
   players: [],
   leader: false,
   drawing: '',
@@ -52,6 +50,7 @@ export const defaultGameState: GameState = {
 export interface Player {
   playerID: string
   playerName: string
+  points: number
 }
 
 const gameState = createSlice({
@@ -93,6 +92,10 @@ const gameState = createSlice({
       state.isLoading = false
       state.error = null
     },
+    reset() {
+      localStorage.setItem('gameInProgress', '')
+      return defaultGameState
+    }
   },
   extraReducers: {
     'GAME_STREAM::MESSAGE': (state, action) => {
@@ -114,6 +117,10 @@ const gameState = createSlice({
           case 'review':
             state.stage = 'review'
             break
+          case 'results':
+            state.stage = 'results'
+            state.players = JSON.parse(atob(msg.data))
+            break
           default:
             return state
         }
@@ -122,10 +129,20 @@ const gameState = createSlice({
       }
     },
     'GAME_STREAM::ERROR': (state, action) => {
+      state.retryCount = state.retryCount + 1
       console.error(action)
       state.streamConnected = false
-      state.error = `Could not establish WebSocket connection - we'll keep trying!`
+      state.error = `Problem with the WebSocket, hold on, I'm working on it...`
+      if (state.retryCount > 10) {
+        state.error = `This isn't going well...`
+      } else if (state.retryCount > 100) {
+        return defaultGameState
+      }
     },
+    'GAME_STREAM::RECONNECTED': (state) => {
+      state.streamConnected = true
+      state.error = null
+    }
   },
 })
 
@@ -136,6 +153,7 @@ export const {
   newGameSuccess,
   connectStreamSuccess,
   loadReviewDataSuccess,
+  reset
 } = gameState.actions
 
 export default gameState.reducer
@@ -163,7 +181,7 @@ export const joinAGame = (joinCode: string): AppThunk => async (dispatch) => {
 export const subscribeToGameStream = (gameID: string, playerID: string): AppThunk => async (dispatch) => {
   try {
     dispatch(startLoading())
-    dispatch(connect(`ws://localhost:8080/${gameID}/${playerID}/`, 'GAME_STREAM'))
+    dispatch(connect(`${process.env.REACT_APP_WEBSOCKET_URL}/${gameID}/${playerID}/`, 'GAME_STREAM'))
     dispatch(connectStreamSuccess())
   } catch (err) {
     dispatch(loadingFailed(err.toString()))
@@ -172,7 +190,7 @@ export const subscribeToGameStream = (gameID: string, playerID: string): AppThun
 
 export const unsubscribeFromGameStream = (): AppThunk => async (dispatch) => {
   try {
-    dispatch(disconnect('GAME_STREAM'))
+    dispatch(reset())
   } catch (err) {
     dispatch(loadingFailed(err.toString()))
   }

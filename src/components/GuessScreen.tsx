@@ -21,12 +21,15 @@ function GuessScreen({ drawData }: GuessScreenProps) {
 
   function sendGuess() {
     setDisabled(true)
-    setButtonText('Sending...')
     if (guess !== '') {
+      setButtonText('Sending...')
       dispatch(sendStreamMessage({
         type: 'guess',
         data: guess
       }))
+      setButtonText('Waiting...')
+    } else {
+      setDisabled(false)
     }
   }
 
@@ -35,7 +38,7 @@ function GuessScreen({ drawData }: GuessScreenProps) {
       <p style={{ textAlign: 'center' }}>What do you think this is?</p>
       {drawing !== '' && (
         <CanvasDraw
-          lazyRadius={1}
+          lazyRadius={0}
           hideGrid={true}
           brushRadius={6}
           canvasWidth={320}

@@ -7,6 +7,7 @@ import * as serviceWorker from './serviceWorker'
 import { Provider } from 'react-redux'
 
 import store from './store'
+import Footer from './components/Footer'
 
 const render = () => {
   ReactDOM.render(
@@ -15,10 +16,11 @@ const render = () => {
         <div className="App">
           <header className="App-header">
             <h1>Drawl!</h1>
-            <div id="content-window">
-              <App />
-            </div>
           </header>
+          <div id="content-window">
+            <App />
+          </div>
+          <Footer />
         </div>
       </Provider>
     </React.StrictMode>,
