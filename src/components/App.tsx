@@ -11,7 +11,8 @@ import ResultsScreen from './ResultsScreen'
 
 function App() {
   const dispatch = useDispatch()
-  const { stage, gameID, player, word, drawing, error } = useSelector((state: RootState) => state.gameState)
+  const { stage, gameID, player } = useSelector((state: RootState) => state.gameState)
+
 
   useEffect(() => {
     if (gameID !== '' && player.playerID !== '') {
@@ -22,25 +23,15 @@ function App() {
     }
   }, [dispatch, gameID, player])
 
-  if (error != null) {
-    return ( 
-      <>
-        <h1>Something bad happened...</h1>
-        {error}
-      </>
-    )
-
-  }
-
   switch (stage) {
     case 'start':
       return <StartScreen />
     case 'lobby':
       return <LobbyScreen />
     case 'draw':
-      return <DrawScreen word={word} />
+      return <DrawScreen />
     case 'guess':
-      return <GuessScreen drawData={drawing} />
+      return <GuessScreen />
     case 'review':
       return <ReviewScreen />
     case 'results':

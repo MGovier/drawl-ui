@@ -37,6 +37,12 @@ function LobbyScreen() {
     }))
   }
 
+  if (!streamConnected) {
+    return (
+      <p>Waiting for WebSocket connection...</p>
+    )
+  }
+
   return (
     <div id="content-window">
       <p style={{ textAlign: 'center' }}>Room Code: {joinCode}</p>

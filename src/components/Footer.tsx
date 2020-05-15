@@ -5,7 +5,7 @@ function Footer() {
     <footer>
       <div className="container">
         <p>
-          A Quick Hack by Merlin - <a href="https://github.com/MGovier">GitHub</a>
+          alpha - let me know what breaks... <a href="https://github.com/MGovier/drawl-ui">GitHub</a>
         </p>
       </div>
     </footer>

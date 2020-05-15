@@ -16,12 +16,12 @@ function StartScreen() {
         masterpieces!
       </p>
       <p>
-        Everyone needs their own device to draw on. One player starts the game, and then everyone else can use the code
-        to join.
+        Everyone needs their own device to draw on. One player starts a new game, and then everyone else can use the
+        code to join.
       </p>
       {error !== null && (
         <div className="nes-balloon from-left">
-          <p>Whoops, there was a problem! {error}</p>
+          <p>{error}</p>
         </div>
       )}
       <form>
@@ -53,7 +53,7 @@ function StartScreen() {
           </button>
         </div>
       </form>
-      <p style={{ padding: '2rem', textAlign: 'center', margin: 'auto' }}>Or...</p>
+      <p style={{ padding: '1rem', textAlign: 'center', margin: 'auto' }}>Or...</p>
       <button
         type="button"
         className="nes-btn is-primary"

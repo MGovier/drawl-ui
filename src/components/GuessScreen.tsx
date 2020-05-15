@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import CanvasDraw from 'react-canvas-draw'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../rootReducer'
+
 import { sendStreamMessage } from '../api/gameStateReducer'
 
-
-interface GuessScreenProps {
-  drawData: string
-}
-
-function GuessScreen({ drawData }: GuessScreenProps) {
+function GuessScreen() {
   const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
   const [buttonText, setButtonText] = useState(`Send Guess`)
   const [guess, setGuess] = useState('')
-  const [drawing, setDrawing] = useState('')
+  const { drawing, streamConnected } = useSelector((state: RootState) => state.gameState)
 
   useEffect(() => {
-    setDrawing(drawData)
-  }, [drawData])
+    if (!streamConnected) {
+      setButtonText("Reconnecting...")
+    }
+  }, [streamConnected])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   function sendGuess() {
     setDisabled(true)
@@ -55,8 +58,11 @@ function GuessScreen({ drawData }: GuessScreenProps) {
           id="guess"
           className="nes-input"
           value={guess}
+          disabled={disabled}
           onChange={(evt) => {
-            setGuess(evt.target.value)
+            if (evt.target.value.length < 30) {
+              setGuess(evt.target.value)
+            }
           }}
         />
       </div>

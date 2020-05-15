@@ -1,18 +1,27 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import CanvasDraw from 'react-canvas-draw'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { sendStreamMessage } from '../api/gameStateReducer'
+import { RootState } from '../rootReducer'
 
-interface DrawScreenProps {
-  word: string
-}
 
-function DrawScreen({ word }: DrawScreenProps) {
+function DrawScreen() {
   const drawing = useRef<CanvasDraw>(null)
   const dispatch = useDispatch()
   const [colour, setColour] = useState('#444')
   const [disabled, setDisabled] = useState(false)
   const [buttonText, setButtonText] = useState(`I'm Done`)
+  const { word, streamConnected } = useSelector((state: RootState) => state.gameState)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  useEffect(() => {
+    if (!streamConnected) {
+      setButtonText("Reconnecting...")
+    }
+  }, [streamConnected])
 
   function sendDrawing() {
     const drawingData = drawing.current?.getSaveData()

@@ -53,6 +53,17 @@ export interface Player {
   points: number
 }
 
+function setLocalStorage(gameID: string, playerID: string) {
+  localStorage.setItem('playerID', playerID)
+  localStorage.setItem('gameID', gameID)
+}
+
+function clearLocalStorage() {
+  // Don't use clear as we still want to store player name!
+  localStorage.removeItem('playerID')
+  localStorage.removeItem('gameID')
+}
+
 const gameState = createSlice({
   name: 'gameState',
   initialState: defaultGameState,
@@ -73,6 +84,7 @@ const gameState = createSlice({
       state.leader = false
       state.isLoading = false
       state.error = null
+      setLocalStorage(gameID, player.playerID)
     },
     newGameSuccess(state, { payload }: PayloadAction<GameResp>) {
       const { gameID, player, joinCode } = payload
@@ -83,6 +95,7 @@ const gameState = createSlice({
       state.leader = true
       state.isLoading = false
       state.error = null
+      setLocalStorage(gameID, player.playerID)
     },
     connectStreamSuccess(state) {
       state.error = null
@@ -93,7 +106,7 @@ const gameState = createSlice({
       state.error = null
     },
     reset() {
-      localStorage.setItem('gameInProgress', '')
+      clearLocalStorage()
       return defaultGameState
     }
   },
@@ -104,6 +117,7 @@ const gameState = createSlice({
         const msg = JSON.parse(action.payload.message)
         switch (msg.type) {
           case 'players':
+            state.stage = 'lobby'
             state.players = JSON.parse(atob(msg.data))
             break
           case 'word':
@@ -130,7 +144,6 @@ const gameState = createSlice({
     },
     'GAME_STREAM::ERROR': (state, action) => {
       state.retryCount = state.retryCount + 1
-      console.error(action)
       state.streamConnected = false
       state.error = `Problem with the WebSocket, hold on, I'm working on it...`
       if (state.retryCount > 10) {
@@ -181,7 +194,7 @@ export const joinAGame = (joinCode: string): AppThunk => async (dispatch) => {
 export const subscribeToGameStream = (gameID: string, playerID: string): AppThunk => async (dispatch) => {
   try {
     dispatch(startLoading())
-    dispatch(connect(`${process.env.REACT_APP_WEBSOCKET_URL}/${gameID}/${playerID}/`, 'GAME_STREAM'))
+    dispatch(connect(`${process.env.REACT_APP_WEBSOCKET_URL}?game_id=${gameID}&player_id=${playerID}`, 'GAME_STREAM'))
     dispatch(connectStreamSuccess())
   } catch (err) {
     dispatch(loadingFailed(err.toString()))

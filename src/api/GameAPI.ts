@@ -30,7 +30,7 @@ export interface GamePlay {
 
 export async function joinGame(joinCode: string): Promise<GameResp> {
   try {
-    const resp = await axios.post<GameResp>('http://localhost:8080/join', {
+    const resp = await axios.post<GameResp>(process.env.REACT_APP_API_URL + '/join', {
       joinCode: joinCode,
     })
     return {
@@ -45,7 +45,7 @@ export async function joinGame(joinCode: string): Promise<GameResp> {
 
 export async function startGame(): Promise<GameResp> {
   try {
-    const resp = await axios.get<GameResp>('http://localhost:8080/game')
+    const resp = await axios.get<GameResp>(process.env.REACT_APP_API_URL + '/game')
     return {
       joinCode: resp.data.joinCode,
       gameID: resp.data.gameID,
@@ -58,7 +58,7 @@ export async function startGame(): Promise<GameResp> {
 
 export async function getGameReview(gameID : string): Promise<GameReview> {
   try {
-    const resp = await axios.get<GameReview>('http://localhost:8080/review?game_id=' + gameID)
+    const resp = await axios.get<GameReview>(process.env.REACT_APP_API_URL + '/review?game_id=' + gameID)
     return resp.data
   } catch (err) {
     throw err
