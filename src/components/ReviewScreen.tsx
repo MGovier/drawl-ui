@@ -8,11 +8,11 @@ export default function ReviewScreen() {
   const dispatch = useDispatch()
   const [journey, setJourney] = useState(0)
   const [waiting, setWaiting] = useState(false)
-  const { gameID, reviewData, player, isLoading } = useSelector((state: RootState) => state.gameState)
+  const { gameID, reviewData, player, isLoading, session } = useSelector((state: RootState) => state.gameState)
 
   useEffect(() => {
-    dispatch(getGameReviewData(gameID))
-  }, [dispatch, gameID])
+    dispatch(getGameReviewData(gameID, session))
+  }, [dispatch, gameID, session])
 
   useEffect(() => {
     window.scrollTo(0, 0)

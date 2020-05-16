@@ -19,6 +19,7 @@ export interface GameState {
   error: string | null
   streamConnected: boolean
   reviewData: GameReview | null
+  session: number
 }
 
 export interface StreamMessage {
@@ -44,7 +45,8 @@ export const defaultGameState: GameState = {
   isLoading: false,
   error: null,
   streamConnected: false,
-  reviewData: null
+  reviewData: null,
+  session: 0
 }
 
 export interface Player {
@@ -84,7 +86,6 @@ const gameState = createSlice({
       state.leader = false
       state.isLoading = false
       state.error = null
-      setLocalStorage(gameID, player.playerID)
     },
     newGameSuccess(state, { payload }: PayloadAction<GameResp>) {
       const { gameID, player, joinCode } = payload
@@ -95,7 +96,6 @@ const gameState = createSlice({
       state.leader = true
       state.isLoading = false
       state.error = null
-      setLocalStorage(gameID, player.playerID)
     },
     connectStreamSuccess(state) {
       state.error = null
@@ -118,6 +118,7 @@ const gameState = createSlice({
         switch (msg.type) {
           case 'players':
             state.stage = 'lobby'
+            state.reviewData = null
             state.players = JSON.parse(atob(msg.data))
             break
           case 'word':
@@ -134,6 +135,7 @@ const gameState = createSlice({
           case 'results':
             state.stage = 'results'
             state.players = JSON.parse(atob(msg.data))
+            state.session = state.session + 1
             break
           default:
             return state
@@ -217,10 +219,10 @@ export const sendStreamMessage = (message: StreamMessage): AppThunk => async (di
   }
 }
 
-export const getGameReviewData = (gameID: string): AppThunk => async (dispatch) => {
+export const getGameReviewData = (gameID: string, session: number): AppThunk => async (dispatch) => {
   try {
     dispatch(startLoading())
-    const data = await getGameReview(gameID)
+    const data = await getGameReview(gameID, session)
     dispatch(loadReviewDataSuccess(data))
   } catch (err) {
     dispatch(loadingFailed(err.toString()))

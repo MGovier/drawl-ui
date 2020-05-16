@@ -56,9 +56,9 @@ export async function startGame(): Promise<GameResp> {
   }
 }
 
-export async function getGameReview(gameID : string): Promise<GameReview> {
+export async function getGameReview(gameID : string, session : number): Promise<GameReview> {
   try {
-    const resp = await axios.get<GameReview>(process.env.REACT_APP_API_URL + '/review?game_id=' + gameID)
+    const resp = await axios.get<GameReview>(process.env.REACT_APP_API_URL + `/review?game_id=${gameID}&session=${session}`)
     return resp.data
   } catch (err) {
     throw err
