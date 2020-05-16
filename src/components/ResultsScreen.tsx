@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../rootReducer'
 import { sendStreamMessage, unsubscribeFromGameStream } from '../api/gameStateReducer'
@@ -20,9 +20,13 @@ function ResultsScreen() {
     dispatch(unsubscribeFromGameStream())
   }
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   let playerClone: Player[] = []
   players.forEach((playa) => playerClone.push(Object.assign({}, playa)))
-  const playersByPoints = playerClone.sort((a: Player, b: Player) => a.points - b.points)
+  const playersByPoints = playerClone.sort((a: Player, b: Player) => b.points - a.points)
 
   let actions = null
   if (leader) {

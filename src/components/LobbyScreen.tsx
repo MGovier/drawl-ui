@@ -21,6 +21,10 @@ function LobbyScreen() {
     }
   }, [dispatch, streamConnected])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   function sendName() {
     localStorage.setItem('playerName', name)
     if (name.length > 1 && name.length < 15) {
